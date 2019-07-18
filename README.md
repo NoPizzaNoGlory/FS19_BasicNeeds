@@ -9,9 +9,10 @@ This mod gives your farmer an energy level he has to deal with. Just like everyo
 - Driving a vehicle (engine on) takes double the amount of energy of walking
 - Walking is also considered resting though
 - To rest you need to do nothing inside an active vehicle for at least 1 in-game hour
-- Every in-game hour of resting ups your engery bar a little again
+- Every in-game hour of resting ups your energy bar a little again
 - About 7 hours of resting should get you back up to 100% (so sleeping works great ;-))
 - Every meal you take (remember, max 3 per day!) ups your energy bar a little as well
+- Every meal does take 30 minutes to complete (time is fast forwarded automatically)
 - Energy down to 0? You can no longer move any vehicle. Take a break and/or eat something!
 
 ## Is this for multi-player?
