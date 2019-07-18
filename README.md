@@ -15,6 +15,9 @@ This mod gives your farmer an energy level he has to deal with. Just like everyo
 - Every meal does take 30 minutes to complete (time is fast forwarded automatically)
 - Energy down to 0? You can no longer move any vehicle. Take a break and/or eat something!
 
+## How do I take a meal?
+The default hotkey is left ctrl + e, but you can change that to something else in the game settings.
+
 ## Is this for multi-player?
 No. I wrote this mod for role playing in single player. I might look at making it multi-player compatible in the future, but no promises.
 
