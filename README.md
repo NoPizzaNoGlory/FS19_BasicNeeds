@@ -2,7 +2,7 @@
 Basic Needs for your farmer in FS19. Sleep and eat!
 
 ## How does this mod work?
-This mod gives your farmer an energy level he has to deal with. Just like everyone has in real life. No longer can you just drive vehicles all dat. Instead you'll have to take regular breaks and eat some food every now and then. Because if you don't, you'll no longer be able to drive anything! So plan your (food) breaks ahead of time!
+This mod gives your farmer an energy level he has to deal with. Just like everyone has in real life. No longer can you just drive vehicles all day. Instead you'll have to take regular breaks and eat some food every now and then. Because if you don't, you'll no longer be able to drive anything! So plan your (food) breaks ahead of time!
 
 ## So what are the rules here?
 - You get 3 meals per day (reset every night at 00:00)
