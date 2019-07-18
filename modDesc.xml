@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no" 0?>
+<modDesc descVersion="43">
+	<title>
+		<de>Basic Needs</de>
+		<en>Basic Needs</en>
+	</title>
+	
+	<description>
+		<de><![CDATA[Grundbedürfnisse für Ihren Landwirt]]></de>
+		<en><![CDATA[Basic needs for your farmer]]></en>
+	</description>
+	
+	<author>NoPizzaNoGlory</author>
+	<version>1.0.0.0</version>
+	<iconFilename>basicneeds.dds</iconFilename>
+	
+	<multiplayer supported="false"/>
+	
+	<extraSourceFiles>
+		<sourceFile filename="script.lua" />
+	</extraSourceFiles>
+	
+	<l10n>
+		<text name="input_BasicNeeds_reload_xml">
+			<de><![CDATA[Basic Needs: XML neu laden]]></de>
+			<en><![CDATA[Basic Needs: Reload XML]]></en>
+		</text>
+		<text name="input_BasicNeeds_have_meal">
+			<de><![CDATA[Basic Needs: Eine Mahlzeit haben]]></de>
+			<en><![CDATA[Basic Needs: Have a meal]]></en>
+		</text>
+		<text name="ingameNotification_tooTiredToDrive">
+			<de><![CDATA[Sie sind zu müde, um zu fahren. Machen Sie eine Pause oder essen Sie etwas.]]></de>
+			<en><![CDATA[You are too tired to drive. Take a break or have some food.]]></en>
+		</text>
+		<text name="ingameNotification_havingMeal">
+			<de><![CDATA[Bitte warten Sie, bis Sie mit dem Essen fertig sind.]]></de>
+			<en><![CDATA[Please wait while you finish your meal.]]></en>
+		</text>		
+	</l10n>
+	
+    <actions>
+		<action name="BasicNeeds_reload_xml" category="SYSTEM" axisType="HALF" ignoreComboMask="false"/>
+		<action name="BasicNeeds_have_meal" category="SYSTEM" axisType="HALF" ignoreComboMask="false"/>
+    </actions>
+	
+    <inputBinding>
+        <actionBinding action="BasicNeeds_reload_xml" >
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_KP_8" />
+        </actionBinding>
+        <actionBinding action="BasicNeeds_have_meal" >
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_e" />
+        </actionBinding>
+    </inputBinding>
+	
+</modDesc>
