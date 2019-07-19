@@ -6,7 +6,7 @@
 	</title>
 	
 	<description>
-		<de><![CDATA[Grundbedürfnisse für Ihren Landwirt]]></de>
+		<de><![CDATA[Grundbedürfnisse für Ihren Bauer]]></de>
 		<en><![CDATA[Basic needs for your farmer]]></en>
 	</description>
 	
@@ -36,7 +36,11 @@
 		<text name="ingameNotification_havingMeal">
 			<de><![CDATA[Bitte warten Sie, bis Sie mit dem Essen fertig sind.]]></de>
 			<en><![CDATA[Please wait while you finish your meal.]]></en>
-		</text>		
+		</text>
+		<text name="ingameNotification_notHungry">
+			<de><![CDATA[Sie haben keinen Hunger.]]></de>
+			<en><![CDATA[You are not hungry.]]></en>
+		</text>
 	</l10n>
 	
     <actions>

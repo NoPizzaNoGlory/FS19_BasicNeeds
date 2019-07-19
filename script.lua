@@ -1,5 +1,5 @@
 BasicNeeds = {
-	VERSION = 190718,
+	VERSION = 190719,
 	configFile = nil,
 	color = {
 		normal = {1.0, 1.0, 1.0, 1.0},
@@ -17,6 +17,7 @@ BasicNeeds = {
 		isDriving = false,
 		isEating = false,
 		isEatingMinutesLeft = nil,
+		nextMealMinutes = 0,
 		restingMinutes = 0,
 		restingHours = 0
 	},
@@ -28,7 +29,13 @@ BasicNeeds = {
 	meal = {
 		perDay = 3,
 		energy = 14,
-		durationInMinutes = 30
+		durationInMinutes = 30,
+		timeBetweenMealsInMinutes = 180
+	},
+	notifications = {
+		notHungry = 0,
+		eating = 0,
+		tooTired = 0
 	}
 };
 
@@ -78,7 +85,12 @@ function BasicNeeds:loadConfig()
 	local xmlVersion = Utils.getNoNil(getXMLInt(xml, "BasicNeeds#VERSION"), 0);
 	if xmlVersion > 0 then
 	
-		-- new config values
+		-- get config values (compatible with older versions)
+		if xmlVersion >= 190719 and xmlVersion <= BasicNeeds.VERSION then
+			BasicNeeds.player.nextMealMinutes = Utils.getNoNil(getXMLFloat(xml, "BasicNeeds.player.nextMealMinutes"), BasicNeeds.player.nextMealMinutes);
+			BasicNeeds.meal.timeBetweenMealsInMinutes = Utils.getNoNil(getXMLFloat(xml, "BasicNeeds.meal.timeBetweenMealsInMinutes"), BasicNeeds.meal.timeBetweenMealsInMinutes);
+		end
+		
 		if xmlVersion >= 190718 and xmlVersion <= BasicNeeds.VERSION then
 			BasicNeeds.energy.costPerMinute = Utils.getNoNil(getXMLFloat(xml, "BasicNeeds.energy.costPerMinute"), BasicNeeds.energy.costPerMinute);		
 			BasicNeeds.energy.costPerMinuteInVehicle = Utils.getNoNil(getXMLFloat(xml, "BasicNeeds.energy.costPerMinuteInVehicle"), BasicNeeds.energy.costPerMinuteInVehicle);		
@@ -115,15 +127,19 @@ function BasicNeeds:saveConfig()
 	local xml = createXMLFile("BasicNeeds_XML", BasicNeeds.configFile, "BasicNeeds");
 	setXMLInt(xml, "BasicNeeds#VERSION", BasicNeeds.VERSION);
 	setXMLFloat(xml, "BasicNeeds.player.energyLevel", BasicNeeds.player.energyLevel);
-	setXMLFloat(xml, "BasicNeeds.player.mealsLeft", BasicNeeds.player.mealsLeft);
+	setXMLInt(xml, "BasicNeeds.player.mealsLeft", BasicNeeds.player.mealsLeft);
 	
 	-- added in version 190718
 	setXMLFloat(xml, "BasicNeeds.energy.costPerMinute", BasicNeeds.energy.costPerMinute);
 	setXMLFloat(xml, "BasicNeeds.energy.costPerMinuteInVehicle", BasicNeeds.energy.costPerMinuteInVehicle);
 	setXMLFloat(xml, "BasicNeeds.energy.regainPerHourResting", BasicNeeds.energy.regainPerHourResting);
-	setXMLFloat(xml, "BasicNeeds.meal.perDay", BasicNeeds.meal.perDay);
+	setXMLInt(xml, "BasicNeeds.meal.perDay", BasicNeeds.meal.perDay);
 	setXMLFloat(xml, "BasicNeeds.meal.energy", BasicNeeds.meal.energy);
-	setXMLFloat(xml, "BasicNeeds.meal.durationInMinutes", BasicNeeds.meal.durationInMinutes);
+	setXMLInt(xml, "BasicNeeds.meal.durationInMinutes", BasicNeeds.meal.durationInMinutes);
+	
+	-- added in version 190719
+	setXMLInt(xml, "BasicNeeds.player.nextMealMinutes", BasicNeeds.player.nextMealMinutes);
+	setXMLInt(xml, "BasicNeeds.meal.timeBetweenMealsInMinutes", BasicNeeds.meal.timeBetweenMealsInMinutes);
 	
 	saveXMLFile(xml);
 	if delete ~= nil then
@@ -166,6 +182,8 @@ function BasicNeeds:draw(dt)
 
 	BasicNeeds:drawText();
 	
+	BasicNeeds:showNotifcations();
+	
 	--respect settings for other mods
 	setTextAlignment(0);
 	setTextColor(1, 1, 1, 1);
@@ -174,6 +192,7 @@ end
 
 function BasicNeeds:drawText()
 	setTextAlignment(RenderText.ALIGN_LEFT);
+	setTextBold(false);
 	
 	renderOverlay(BasicNeeds.batteryOL, BasicNeeds.pos[1] - 0.015, BasicNeeds.pos[2] - 0.006, 0.012, 0.022);
 	renderOverlay(BasicNeeds.foodOL, BasicNeeds.pos[1] + 0.02, BasicNeeds.pos[2] - 0.006, 0.012, 0.022);
@@ -188,7 +207,26 @@ function BasicNeeds:drawText()
 	renderText(BasicNeeds.pos[1], BasicNeeds.pos[2], BasicNeeds.font.size, string.format("%d", BasicNeeds.player.energyLevel) .. "%");
 	
 	setTextColor(1, 1, 1, 1);
-	renderText(BasicNeeds.pos[1] + 0.035, BasicNeeds.pos[2], BasicNeeds.font.size, "" .. BasicNeeds.player.mealsLeft);	
+	renderText(BasicNeeds.pos[1] + 0.035, BasicNeeds.pos[2], BasicNeeds.font.size, "" .. BasicNeeds.player.mealsLeft);
+end
+
+function BasicNeeds:showNotifcations()
+	if BasicNeeds.notifications.notHungry > 0 then
+		BasicNeeds:drawNotifcation("ingameNotification_notHungry");
+		BasicNeeds.notifications.notHungry = BasicNeeds.notifications.notHungry - 1;
+	elseif BasicNeeds.notifications.eating > 0 then
+		BasicNeeds:drawNotifcation("ingameNotification_havingMeal");
+		BasicNeeds.notifications.eating = BasicNeeds.notifications.eating - 1;
+	elseif BasicNeeds.notifications.tooTired > 0 then
+		BasicNeeds:drawNotifcation("ingameNotification_tooTiredToDrive");
+		BasicNeeds.notifications.tooTired = BasicNeeds.notifications.tooTired - 1;
+	end
+end
+
+function BasicNeeds:drawNotifcation(message)
+	setTextBold(false);
+	setTextAlignment(RenderText.ALIGN_CENTER);
+	renderText(0.5, 0.5, BasicNeeds.font.size * 3, g_i18n:getText(message));
 end
 
 function BasicNeeds:updateEnergyLevel()
@@ -212,10 +250,19 @@ function BasicNeeds:updateEnergyLevel()
 end
 
 function BasicNeeds:haveMeal()
+
+	if BasicNeeds.player.nextMealMinutes > 0 then
+		BasicNeeds.notifications.notHungry = 120;
+		return;
+	end
+
 	if BasicNeeds.player.mealsLeft > 0 then
+		BasicNeeds.player.nextMealMinutes = BasicNeeds.meal.timeBetweenMealsInMinutes;
 		BasicNeeds.player.mealsLeft = BasicNeeds.player.mealsLeft - 1;
 		BasicNeeds.player.energyLevel = BasicNeeds.player.energyLevel + BasicNeeds.meal.energy;
 		
+		BasicNeeds.notifications.eating = 120;
+				
 		-- energy can't go over 100
 		if BasicNeeds.player.energyLevel > 100 then
 			BasicNeeds.player.energyLevel = 100;
@@ -230,19 +277,23 @@ end
 
 function BasicNeeds:handleEating()
 	if BasicNeeds.player.isEating == true then
+		
 		if BasicNeeds.player.isEatingMinutesLeft == nil then
 			BasicNeeds.player.isEatingMinutesLeft = BasicNeeds.meal.durationInMinutes;
-			g_currentMission:setTimeScale(600);
+			g_currentMission:setTimeScale(600);			
 		else
 			if BasicNeeds.player.isEatingMinutesLeft <= 0 then
 				g_currentMission:setTimeScale(1);
 				BasicNeeds.player.isEating = false;
 				BasicNeeds.player.isEatingMinutesLeft = nil;
+				return;
 			end
 		end
 		
 		-- called every in-game minute, so substract one
 		BasicNeeds.player.isEatingMinutesLeft = BasicNeeds.player.isEatingMinutesLeft - 1;
+	else
+		BasicNeeds.player.nextMealMinutes = BasicNeeds.player.nextMealMinutes - 1;
 	end
 end
 
@@ -291,12 +342,8 @@ function BasicNeeds:onUpdate(dt)
 				setWheelShapeProps(wheel.node, wheel.wheelShape, 0, 999, wheel.steeringAngle, wheel.rotationDamping)
 			end
 			
-			if BasicNeeds.player.isEating then
-				setTextAlignment(RenderText.ALIGN_CENTER);
-				renderText(0.5, 0.5, BasicNeeds.font.size * 3, g_i18n:getText("ingameNotification_havingMeal"));
-			else
-				setTextAlignment(RenderText.ALIGN_CENTER);
-				renderText(0.5, 0.5, BasicNeeds.font.size * 3, g_i18n:getText("ingameNotification_tooTiredToDrive"));
+			if BasicNeeds.player.isEating == false then
+				BasicNeeds.notifications.tooTired = 10;
 			end
 		end
 	else
