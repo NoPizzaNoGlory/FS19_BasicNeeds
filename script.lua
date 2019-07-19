@@ -17,16 +17,17 @@ BasicNeeds = {
 		isDriving = false,
 		isEating = false,
 		isEatingMinutesLeft = nil,
-		restingMinutes = 0
+		restingMinutes = 0,
+		restingHours = 0
 	},
 	energy = {
-		costPerMinute = 0.15,
-		costPerMinuteInVehicle = 0.30,
-		regainPerHourResting = 15
+		costPerMinute = 0.2,
+		costPerMinuteInVehicle = 0.4,
+		regainPerHourResting = 20
 	},
 	meal = {
 		perDay = 3,
-		energy = 10,
+		energy = 14,
 		durationInMinutes = 30
 	}
 };
@@ -177,7 +178,16 @@ function BasicNeeds:drawText()
 	renderOverlay(BasicNeeds.batteryOL, BasicNeeds.pos[1] - 0.015, BasicNeeds.pos[2] - 0.006, 0.012, 0.022);
 	renderOverlay(BasicNeeds.foodOL, BasicNeeds.pos[1] + 0.02, BasicNeeds.pos[2] - 0.006, 0.012, 0.022);
 	
-	renderText(BasicNeeds.pos[1], BasicNeeds.pos[2], BasicNeeds.font.size, string.format("%02d", BasicNeeds.player.energyLevel) .. "%");
+	setTextColor(1, 1, 1, 1);
+	if BasicNeeds.player.energyLevel < 30 then
+		setTextColor(unpack(BasicNeeds.color.warning));
+	end
+	if BasicNeeds.player.energyLevel < 10 then
+		setTextColor(unpack(BasicNeeds.color.urgent));
+	end
+	renderText(BasicNeeds.pos[1], BasicNeeds.pos[2], BasicNeeds.font.size, string.format("%d", BasicNeeds.player.energyLevel) .. "%");
+	
+	setTextColor(1, 1, 1, 1);
 	renderText(BasicNeeds.pos[1] + 0.035, BasicNeeds.pos[2], BasicNeeds.font.size, "" .. BasicNeeds.player.mealsLeft);	
 end
 
@@ -244,18 +254,25 @@ function BasicNeeds.handleResting()
 		if BasicNeeds.player.restingMinutes >= 60 then
 			-- new hour, so back to 0 for the next one
 			BasicNeeds.player.restingMinutes = 0;
+			BasicNeeds.player.restingHours = BasicNeeds.player.restingHours + 1;
 			
-			-- regain some energy (we assume 7 hours of "sleep" gets you back to 100%)
+			-- regain some energy every full resting hour
 			BasicNeeds.player.energyLevel = BasicNeeds.player.energyLevel + BasicNeeds.energy.regainPerHourResting;
+			
+			-- did we sleep for 7 hours without interuption? Then set energy to 100%
+			if BasicNeeds.player.restingHours >= 7 then
+				BasicNeeds.player.energyLevel = 100;
+			end
 		
 			-- don't go over 100% though
 			if BasicNeeds.player.energyLevel > 100 then
 				BasicNeeds.player.energyLevel = 100;
 			end					
 		end
-	-- player is not resting, so reset counter to 0
+	-- player is not resting, so reset counters to 0
 	else
 		BasicNeeds.player.restingMinutes = 0;
+		BasicNeeds.player.restingHours = 0;
 	end
 end
 
