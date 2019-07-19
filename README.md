@@ -1,6 +1,8 @@
 # Farming Simulator 19: Basic Needs mod
 Basic Needs for your farmer in FS19. Sleep and eat or you won't be able to work!
 
+![alt text](https://raw.githubusercontent.com/NoPizzaNoGlory/FS19_BasicNeeds/master/images/preview1.jpg)
+
 ## How does this mod work?
 This mod gives your farmer an energy level he has to deal with. Just like everyone has in real life. No longer can you just drive vehicles all day. Instead you'll have to take regular breaks and eat some food every now and then. Because if you don't, you'll no longer be able to drive anything! So plan your (food) breaks ahead of time!
 
